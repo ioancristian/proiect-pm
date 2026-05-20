@@ -1,4 +1,4 @@
-# Smart Lamp (Lampa Inteligenta) - IoT Project
+# Lampa Inteligenta - IoT Project
 
 Un sistem de iluminat complet automatizat, dezvoltat cu o arhitectura hibrida hardware-software.
 
