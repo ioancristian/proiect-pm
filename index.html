@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Lamp Controller</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .dashboard {
+            background: #1e1e1e;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 300px;
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 24px;
+            margin-bottom: 30px;
+            color: #e0e0e0;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-on {
+            background-color: #4CAF50;
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-on:active { transform: scale(0.95); }
+
+        .btn-off {
+            background-color: #F44336;
+            color: white;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+        }
+
+        .btn-off:active { transform: scale(0.95); }
+
+        .btn-auto {
+            background-color: #2196F3;
+            color: white;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+        }
+
+        .btn-auto:active { transform: scale(0.95); }
+
+        .status {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #aaaaaa;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <h1>Control Lampă</h1>
+        
+        <button class="btn btn-on" onclick="trimiteComanda('on')">Aprinde</button>
+        <button class="btn btn-off" onclick="trimiteComanda('off')">Stinge</button>
+        <button class="btn btn-auto" onclick="trimiteComanda('auto')">Mod AUTO (PIR)</button>
+
+        <div class="status" id="status-text">Așteptare comandă...</div>
+    </div>
+
+    <script>
+        let adresaServer = "";
+
+        function trimiteComanda(cmd) {
+            // Dacă nu am salvat încă adresa, o cerem acum printr-o fereastră pop-up
+            if (!adresaServer) {
+                adresaServer = prompt("Introdu link-ul generat în CMD azi (ex: https://xxx.lhr.life):");
+                
+                // Dacă adresa nu începe cu http, îi adăugăm noi ca să fie validă
+                if (adresaServer && !adresaServer.startsWith('http')) {
+                    adresaServer = 'https://' + adresaServer;
+                }
+            }
+
+            if (!adresaServer) {
+                alert("Trebuie să introduci adresa serverului!");
+                return;
+            }
+
+            const statusDiv = document.getElementById('status-text');
+            statusDiv.textContent = 'Se trimite...';
+            statusDiv.style.color = '#aaaaaa';
+
+            // Folosim adresa introdusă din pop-up
+            fetch(`${adresaServer}/lampa/${cmd}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === "succes") {
+                    statusDiv.textContent = 'Comandă trimisă: ' + cmd.toUpperCase();
+                    statusDiv.style.color = '#4CAF50';
+                } else {
+                    statusDiv.textContent = 'Eroare: ' + data.mesaj;
+                    statusDiv.style.color = '#F44336';
+                }
+            })
+            .catch(error => {
+                statusDiv.textContent = 'Eroare conexiune server!';
+                statusDiv.style.color = '#F44336';
+            });
+        }
+    </script>
+</body>
+</html>
